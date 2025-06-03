@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chat</title>
+  <style>
+    #chat { height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 5px; }
+  </style>
+</head>
+<body>
+  <div id="chat"></div>
+  <input id="msgInput" autocomplete="off" />
+  <button onclick="sendMsg()">Send</button>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const chat = document.getElementById('chat');
+    const msgInput = document.getElementById('msgInput');
+
+    socket.on('partner-found', () => {
+      chat.innerHTML += "<div>You're now chatting with a stranger.</div>";
+    });
+
+    socket.on('message', msg => {
+      chat.innerHTML += `<div><b>Stranger:</b> ${msg}</div>`;
+    });
+
+    socket.on('partner-disconnected', () => {
+      chat.innerHTML += "<div>Stranger disconnected. Refresh to start new chat.</div>";
+    });
+
+    function sendMsg() {
+      const msg = msgInput.value;
+      chat.innerHTML += `<div><b>You:</b> ${msg}</div>`;
+      socket.emit('message', msg);
+      msgInput.value = '';
+    }
+  </script>
+</body>
+</html>
